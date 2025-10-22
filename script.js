@@ -17,7 +17,7 @@ let modules=[], models=[], variants=[];
 let cachedModules=[], cachedModels={}, cachedVariants={};
 let selectedVariants={};
 
-// Debounce function
+// Debounce
 function debounce(fn, delay=300){
   let timeout;
   return (...args)=>{
@@ -45,7 +45,7 @@ async function loadModels(module){
   if(cachedModels[module]){
     models = [...cachedModels[module]];
   } else {
-    const res = await fetch(`${baseURL}/models/${module}`);
+    const res = await fetch(`${baseURL}/models/${encodeURIComponent(module)}`);
     const data = await res.json();
     models = data.map(m=>m.model_name);
     cachedModels[module] = [...models];
@@ -60,7 +60,7 @@ async function loadVariants(model){
   if(cachedVariants[model]){
     variants = [...cachedVariants[model]];
   } else {
-    const res = await fetch(`${baseURL}/variants/${model}`);
+    const res = await fetch(`${baseURL}/variants/${encodeURIComponent(model)}`);
     variants = await res.json();
     cachedVariants[model] = [...variants];
   }
@@ -186,3 +186,4 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.log('Service Worker failed', err));
   });
 }
+

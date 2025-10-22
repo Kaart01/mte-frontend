@@ -1,37 +1,25 @@
-const CACHE_NAME = "mte-pwa-cache-v1";
-const urlsToCache = [
+const cacheName = "mte-calculator-v1";
+const filesToCache = [
   "/",
   "/index.html",
   "/style.css",
   "/script.js",
+  "/manifest.json",
   "/icons/frame1-192.png",
   "/icons/image2-512.png"
 ];
 
-// Install event - cache all essential files
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-  );
-  self.skipWaiting();
-});
-
-// Activate event
-self.addEventListener("activate", event => {
-  event.waitUntil(clients.claim());
-});
-
-// Fetch event - serve from cache first, fallback to network
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request).catch(() => {
-        if (event.request.mode === "navigate") {
-          return caches.match("/index.html");
-        }
-      });
-    })
+self.addEventListener("install", e => {
+  e.waitUntil(
+    caches.open(cacheName).then(cache => cache.addAll(filesToCache))
   );
 });
+
+self.addEventListener("fetch", e => {
+  e.respondWith(
+    caches.match(e.request).then(response => response || fetch(e.request))
+  );
+});
+
 
 
