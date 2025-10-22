@@ -1,37 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MTE Calculator</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MTE Calculator</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
 <body>
+  <div class="app-container">
     <h1>MTE Calculator</h1>
 
-    <div>
-        <label for="moduleDropdown">Module:</label>
-        <select id="moduleDropdown">
-            <option value="">Select Module</option>
-        </select>
+    <!-- Module Card -->
+    <div class="card">
+      <label for="moduleDropdown">Module</label>
+      <select id="moduleDropdown">
+        <option value="">Select Module</option>
+      </select>
     </div>
 
-    <div>
-        <label for="modelDropdown">Model:</label>
-        <select id="modelDropdown">
-            <option value="">Select Model</option>
-        </select>
+    <!-- Model Card -->
+    <div class="card">
+      <label for="modelDropdown">Model</label>
+      <select id="modelDropdown">
+        <option value="">Select Model</option>
+      </select>
     </div>
 
-    <div>
-        <label for="variantDropdown">Variant:</label>
-        <select id="variantDropdown">
-            <option value="">Select Variant</option>
-        </select>
+    <!-- Variant Card -->
+    <div class="card">
+      <label for="variantDropdown">Variant</label>
+      <select id="variantDropdown">
+        <option value="">Select Variant</option>
+      </select>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Optional calculate button -->
+    <div class="card calculate-card">
+      <button id="calculateBtn">Calculate</button>
+    </div>
+  </div>
+
+  <script src="script_v2.js"></script>
 </body>
 </html>
 
