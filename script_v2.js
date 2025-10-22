@@ -12,7 +12,6 @@ const selectedChips = document.getElementById("selectedChips");
 const clearAllBtn = document.getElementById("clearAllBtn");
 const loadingOverlay = document.getElementById("loadingOverlay");
 
-let modules = [], models = [], variants = [];
 let cachedModules = [], cachedModels = {}, cachedVariants = {};
 let selectedVariants = {};
 
@@ -30,35 +29,35 @@ async function loadModules(){
   if(cachedModules.length) return;
   const res = await fetch(`${baseURL}/modules`);
   cachedModules = await res.json();
-  modules = [...cachedModules];
-  renderDropdown(modules, moduleSelect);
+  renderDropdown(cachedModules, moduleSelect);
 }
 
 // --- Load Models ---
 async function loadModels(module){
   if(cachedModels[module]){
-    models = [...cachedModels[module]];
+    renderDropdown(cachedModels[module], modelSelect);
   } else {
-    const res = await fetch(`${baseURL}/models/${module}`);
+    const res = await fetch(`${baseURL}/models/${encodeURIComponent(module)}`);
     const data = await res.json();
-    models = data.map(m=>m.model_name);
-    cachedModels[module] = [...models];
+    const models = data.map(m=>m.model_name);
+    cachedModels[module] = models;
+    renderDropdown(models, modelSelect);
   }
-  renderDropdown(models, modelSelect);
   modelSearch.disabled = false;
   variantSelect.disabled = true;
+  variantSelect.innerHTML = "";
 }
 
 // --- Load Variants ---
 async function loadVariants(model){
   if(cachedVariants[model]){
-    variants = [...cachedVariants[model]];
+    renderDropdown(cachedVariants[model].map(v=>v.variant_name), variantSelect);
   } else {
-    const res = await fetch(`${baseURL}/variants/${model}`);
-    variants = await res.json();
-    cachedVariants[model] = [...variants];
+    const res = await fetch(`${baseURL}/variants/${encodeURIComponent(model)}`);
+    const data = await res.json();
+    cachedVariants[model] = data;
+    renderDropdown(data.map(v=>v.variant_name), variantSelect);
   }
-  renderDropdown(variants.map(v=>v.variant_name), variantSelect);
   variantSearch.disabled = false;
 }
 
@@ -67,8 +66,8 @@ function renderDropdown(items, selectEl){
   selectEl.innerHTML = "";
   items.forEach(item=>{
     const opt = document.createElement("option");
-    opt.value = item;
-    opt.textContent = item;
+    opt.value = typeof item === "string" ? item : item.variant_name;
+    opt.textContent = typeof item === "string" ? item : item.variant_name;
     selectEl.appendChild(opt);
   });
 }
@@ -80,15 +79,16 @@ moduleSearch.addEventListener("input", debounce(()=>{
 }));
 
 modelSearch.addEventListener("input", debounce(()=>{
-  const filtered = models.filter(m=>m.toLowerCase().includes(modelSearch.value.toLowerCase()));
-  renderDropdown(filtered, modelSelect);
+  const models = cachedModels[moduleSelect.value] || [];
+  renderDropdown(models.filter(m=>m.toLowerCase().includes(modelSearch.value.toLowerCase())), modelSelect);
 }));
 
 variantSearch.addEventListener("input", debounce(()=>{
-  const filtered = variants
-    .filter(v=>v.variant_name.toLowerCase().includes(variantSearch.value.toLowerCase()))
-    .map(v=>v.variant_name);
-  renderDropdown(filtered, variantSelect);
+  const variants = cachedVariants[modelSelect.value] || [];
+  renderDropdown(
+    variants.filter(v=>v.variant_name.toLowerCase().includes(variantSearch.value.toLowerCase())).map(v=>v.variant_name),
+    variantSelect
+  );
 }));
 
 // --- Module Select ---
@@ -116,11 +116,11 @@ modelSelect.addEventListener("change", async ()=>{
 
 // --- Variant Select ---
 variantSelect.addEventListener("change", ()=>{
-  const selectedVariant = variantSelect.value;
-  if(!selectedVariants[selectedVariant]){
-    const variantObj = variants.find(v=>v.variant_name === selectedVariant);
-    if(variantObj){
-      selectedVariants[selectedVariant] = variantObj;
+  const vname = variantSelect.value;
+  if(!selectedVariants[vname]){
+    const vobj = cachedVariants[modelSelect.value].find(v=>v.variant_name===vname);
+    if(vobj){
+      selectedVariants[vname] = vobj;
       renderChips();
     }
   }
@@ -143,13 +143,13 @@ function renderChips(){
 
 // --- Clear All ---
 clearAllBtn.addEventListener("click", ()=>{
-  selectedVariants = {};
+  selectedVariants={};
   renderChips();
-  totalMte.textContent = "0";
+  totalMte.textContent="0";
   moduleSearch.value="";
   modelSearch.value="";
   variantSearch.value="";
-  renderDropdown(modules, moduleSelect);
+  renderDropdown(cachedModules, moduleSelect);
   modelSelect.innerHTML="";
   variantSelect.innerHTML="";
   modelSelect.disabled = true;
@@ -173,6 +173,7 @@ calculateBtn.addEventListener("click", async ()=>{
 
 // --- Init ---
 loadModules();
+
 
 
 
