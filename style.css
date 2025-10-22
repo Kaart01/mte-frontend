@@ -1,0 +1,183 @@
+/* General */
+body {
+  font-family: 'Roboto', sans-serif;
+  background: #e9eef5;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  transition: background 0.4s ease;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 480px;
+}
+
+h1 {
+  text-align: center;
+  color: #1976D2;
+  margin-bottom: 24px;
+  font-weight: 700;
+  animation: slideDown 0.6s ease;
+}
+
+/* Card */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  padding: 16px;
+  margin-bottom: 18px;
+  position: relative;
+  transition: all 0.3s ease, transform 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+}
+
+/* Floating Label Inputs */
+.floating-label {
+  position: absolute;
+  font-size: 14px;
+  color: #1976D2;
+  margin-top: -8px;
+  margin-left: 10px;
+  background: #fff;
+  padding: 0 4px;
+  transition: all 0.3s ease;
+}
+input[type="text"]:focus + .floating-label,
+input[type="text"]:not(:placeholder-shown) + .floating-label {
+  transform: translateY(-20px) scale(0.85);
+  color: #0D47A1;
+}
+
+/* Inputs & Dropdowns - Reduced size */
+input[type="text"], select {
+  width: 100%;
+  padding: 8px 6px;  /* reduced from 12px 14px */
+  border-radius: 10px; /* slightly smaller radius */
+  border: 1px solid #ccc;
+  font-size: 13px;     /* slightly smaller font */
+  margin-top: 8px;     /* reduced from 14px */
+  transition: all 0.3s ease;
+}
+
+input[type="text"]:focus, select:focus {
+  outline: none;
+  border-color: #1976D2;
+  box-shadow: 0 0 0 3px rgba(25,118,210,0.15);
+  transform: scale(1.01); /* slightly less zoom on focus */
+}
+
+select {
+  cursor: pointer;
+  max-height: 140px;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
+/* Chips */
+.chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.chip {
+  background: #1976D2;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  animation: popIn 0.3s ease forwards;
+  transform: scale(0);
+  transition: all 0.2s ease;
+}
+.chip:hover {
+  transform: scale(1.1);
+  background: #1565C0;
+}
+.chip .remove {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Buttons */
+button {
+  background: #1976D2;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.25s ease;
+}
+button:hover {
+  background: #1565C0;
+  transform: translateY(-2px) scale(1.02);
+}
+button:active {
+  transform: translateY(0px) scale(0.98);
+}
+.small-btn {
+  width: auto;
+  padding: 6px 12px;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* Calculate card */
+.calculate-card {
+  text-align: center;
+}
+
+/* Loading overlay */
+.loading-overlay {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.35);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+}
+.loading-overlay.show {
+  display: flex;
+  opacity: 1;
+}
+.loading-box {
+  background: #fff;
+  padding: 24px 36px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: popIn 0.3s ease forwards;
+}
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1976D2;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+} 
+
+/* Animations */
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes fadeIn { 0% { opacity:0; } 100% { opacity:1; } }
+@keyframes slideDown { 0% { opacity:0; transform: translateY(-20px);} 100% { opacity:1; transform: translateY(0);} }
+@keyframes popIn { 0% {opacity:0; transform: scale(0.6);} 100% {opacity:1; transform: scale(1);} }
