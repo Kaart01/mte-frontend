@@ -1,29 +1,52 @@
-// service-worker.js
+const CACHE_NAME = 'mte-cache-v1';
+const ASSETS_TO_CACHE = [
+  '/',
+  '/index.html',
+  '/style.css',
+  '/script_v2.js',
+  '/manifest.json',
+  '/icons/frame1-192.png',
+  '/icons/image2-512.png'
+];
 
-self.addEventListener("install", (event) => {
-  console.log("Service Worker installed");
-  self.skipWaiting(); // activate immediately
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE))
+  );
+  self.skipWaiting();
 });
 
-self.addEventListener("activate", (event) => {
-  console.log("Service Worker activated");
-  return self.clients.claim(); // take control immediately
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      )
+    )
+  );
+  self.clients.claim();
 });
 
-// Fetch handler: bypass cache for index.html and script.js
-self.addEventListener("fetch", (event) => {
-  const url = event.request.url;
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
 
-  if (url.endsWith("index.html") || url.endsWith("script.js")) {
-    // Always fetch a fresh copy from the network
-    event.respondWith(fetch(event.request));
-  } else {
-    // Normal network-first strategy
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
-    );
+  if (url.pathname.endsWith('index.html') || url.pathname.endsWith('script_v2.js')) {
+    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+    return;
   }
+
+  event.respondWith(
+    fetch(event.request)
+      .then(res => {
+        const resClone = res.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, resClone));
+        return res;
+      })
+      .catch(() => caches.match(event.request))
+  );
 });
+
+
 
 
 
