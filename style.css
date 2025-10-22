@@ -36,46 +36,56 @@ h1 {
   box-shadow: 0 10px 22px rgba(0,0,0,0.18);
 }
 
-/* Floating Label Inputs */
-.floating-label {
-  position: absolute;
-  font-size: 14px;
-  color: #1976D2;
-  margin-top: -8px;
-  margin-left: 10px;
-  background: #fff;
-  padding: 0 4px;
-  transition: all 0.3s ease;
-}
-input[type="text"]:focus + .floating-label,
-input[type="text"]:not(:placeholder-shown) + .floating-label {
-  transform: translateY(-20px) scale(0.85);
-  color: #0D47A1;
-}
-
-/* Inputs & Dropdowns - Reduced size */
-input[type="text"], select {
+/* Inputs & Dropdowns */
+input[type="text"] {
   width: 100%;
-  padding: 8px 6px;  /* reduced from 12px 14px */
-  border-radius: 10px; /* slightly smaller radius */
+  padding: 7px 6px;
+  border-radius: 10px;
   border: 1px solid #ccc;
-  font-size: 13px;     /* slightly smaller font */
-  margin-top: 8px;     /* reduced from 14px */
+  font-size: 14px;
+  margin-top: 8px;
   transition: all 0.3s ease;
 }
 
-input[type="text"]:focus, select:focus {
+input[type="text"]:focus {
   outline: none;
   border-color: #1976D2;
   box-shadow: 0 0 0 3px rgba(25,118,210,0.15);
-  transform: scale(1.01); /* slightly less zoom on focus */
 }
 
-select {
-  cursor: pointer;
-  max-height: 140px;
+.dropdown-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0 0;
+  max-height: 180px;
   overflow-y: auto;
-  transition: all 0.3s ease;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  display: none;
+  position: absolute;
+  width: 100%;
+  z-index: 100;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.25s ease;
+}
+
+.dropdown-list.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-list li {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dropdown-list li:hover {
+  background: #1976D2;
+  color: #fff;
+  transform: scale(1.02);
 }
 
 /* Chips */
@@ -90,21 +100,16 @@ select {
   color: #fff;
   padding: 6px 12px;
   border-radius: 24px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   animation: popIn 0.3s ease forwards;
   transform: scale(0);
-  transition: all 0.2s ease;
 }
 .chip:hover {
   transform: scale(1.1);
   background: #1565C0;
-}
-.chip .remove {
-  cursor: pointer;
-  font-weight: bold;
 }
 
 /* Buttons */
@@ -134,50 +139,7 @@ button:active {
   margin-top: 6px;
 }
 
-/* Calculate card */
-.calculate-card {
-  text-align: center;
-}
-
-/* Loading overlay */
-.loading-overlay {
-  display: none;
-  position: fixed;
-  top:0; left:0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.35);
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  opacity: 0;
-  animation: fadeIn 0.3s forwards;
-}
-.loading-overlay.show {
-  display: flex;
-  opacity: 1;
-}
-.loading-box {
-  background: #fff;
-  padding: 24px 36px;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: popIn 0.3s ease forwards;
-}
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #1976D2;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 12px;
-} 
-
 /* Animations */
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-@keyframes fadeIn { 0% { opacity:0; } 100% { opacity:1; } }
 @keyframes slideDown { 0% { opacity:0; transform: translateY(-20px);} 100% { opacity:1; transform: translateY(0);} }
 @keyframes popIn { 0% {opacity:0; transform: scale(0.6);} 100% {opacity:1; transform: scale(1);} }
+
