@@ -1,50 +1,61 @@
-const CACHE_NAME = 'mte-cache-v1';
+// service-worker.js
+
+const CACHE_NAME = "mte-cache-v1";
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script_v2.js',
-  '/manifest.json',
-  '/icons/frame1-192.png',
-  '/icons/image2-512.png'
+  "/",
+  "/index.html",
+  "/script_v2.js",
+  "/styles.css",
+  "/manifest.json",
+  "/icons/frame1-192.png",
+  "/icons/image2-512.png",
+  "/screenshots/portrait.png",
+  "/screenshots/landscape.png"
 ];
 
-self.addEventListener('install', event => {
+// Install: cache static assets
+self.addEventListener("install", event => {
+  console.log("[Service Worker] Installing...");
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(ASSETS_TO_CACHE))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-self.addEventListener('activate', event => {
+// Activate: clean old caches
+self.addEventListener("activate", event => {
+  console.log("[Service Worker] Activating...");
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      )
-    )
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-
-  if (url.pathname.endsWith('index.html') || url.pathname.endsWith('script_v2.js')) {
-    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
-    return;
-  }
-
-  event.respondWith(
-    fetch(event.request)
-      .then(res => {
-        const resClone = res.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, resClone));
-        return res;
+    caches.keys().then(keys => Promise.all(
+      keys.map(key => {
+        if(key !== CACHE_NAME) return caches.delete(key);
       })
-      .catch(() => caches.match(event.request))
+    ))
+  );
+  return self.clients.claim();
+});
+
+// Fetch: respond with cache first, fallback to network
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    caches.match(event.request).then(cachedResponse => {
+      if(cachedResponse) return cachedResponse;
+
+      // Attempt network fetch
+      return fetch(event.request).catch(err => {
+        console.error("[Service Worker] Fetch failed:", event.request.url, err);
+        return new Response("Service unavailable", { status: 503, statusText: "Offline" });
+      });
+    })
   );
 });
+
+
+
+
+
+
 
 
 

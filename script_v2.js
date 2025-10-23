@@ -1,9 +1,8 @@
+// script_v2.js
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ====== CONFIG ======
-  const baseURL = "http://127.0.0.1:5000"; // <- Replace with your hosted Flask backend URL
+  const baseURL = "https://mte-backend.onrender.com"; // <- keep this
 
-  // ====== DOM ELEMENTS ======
   const moduleSearch = document.getElementById("moduleSearch");
   const moduleSelect = document.getElementById("moduleSelect");
   const modelSearch = document.getElementById("modelSearch");
@@ -16,11 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearAllBtn = document.getElementById("clearAllBtn");
   const loadingOverlay = document.getElementById("loadingOverlay");
 
-  // ====== STATE ======
   let cachedModules = [], cachedModels = {}, cachedVariants = {};
   let selectedVariants = {};
 
-  // ====== DEBOUNCE ======
   function debounce(fn, delay=300){
     let timeout;
     return (...args)=>{
@@ -29,174 +26,182 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // ====== FETCH FUNCTIONS ======
-  async function loadModules(){
-    if(cachedModules.length) return;
-    try {
-      const res = await fetch(`${baseURL}/modules`);
-      cachedModules = await res.json();
-      renderDropdown(cachedModules, moduleSelect);
-    } catch(e) { alert("Failed to load modules"); }
-  }
-
-  async function loadModels(module){
-    if(cachedModels[module]){
-      renderDropdown(cachedModels[module], modelSelect);
-    } else {
-      try {
-        const res = await fetch(`${baseURL}/models/${encodeURIComponent(module)}`);
-        const data = await res.json();
-        const models = data.map(m=>m.model_name);
-        cachedModels[module] = models;
-        renderDropdown(models, modelSelect);
-      } catch(e){ alert("Failed to load models"); }
-    }
-    modelSearch.disabled = false;
-    variantSelect.disabled = true;
-    variantSelect.innerHTML = "";
-  }
-
-  async function loadVariants(model){
-    if(cachedVariants[model]){
-      renderDropdown(cachedVariants[model].map(v=>v.variant_name), variantSelect);
-    } else {
-      try {
-        const res = await fetch(`${baseURL}/variants/${encodeURIComponent(model)}`);
-        const data = await res.json();
-        cachedVariants[model] = data;
-        renderDropdown(data.map(v=>v.variant_name), variantSelect);
-      } catch(e){ alert("Failed to load variants"); }
-    }
-    variantSearch.disabled = false;
-  }
-
-  // ====== RENDER DROPDOWN ======
+  // --- utilities
   function renderDropdown(items, selectEl){
     if(!selectEl) return;
     selectEl.innerHTML = "";
+    if(!items || !items.length){
+      const opt = document.createElement("option");
+      opt.disabled = true;
+      opt.textContent = "No items";
+      selectEl.appendChild(opt);
+      return;
+    }
     items.forEach(item=>{
       const opt = document.createElement("option");
-      opt.value = typeof item === "string" ? item : item.variant_name;
-      opt.textContent = typeof item === "string" ? item : item.variant_name;
+      opt.value = typeof item === "string" ? item : (item.variant_name || item.model_name || item);
+      opt.textContent = typeof item === "string" ? item : (item.variant_name || item.model_name || item);
       selectEl.appendChild(opt);
     });
   }
 
-  // ====== SEARCH HANDLERS ======
-  moduleSearch?.addEventListener("input", debounce(()=>{
-    const filtered = cachedModules.filter(m=>m.toLowerCase().includes(moduleSearch.value.toLowerCase()));
+  // --- Fetch helpers with better errors
+  async function safeFetchJson(url, opts = {}) {
+  console.log("Fetching URL:", url); // log the URL
+  try {
+    const res = await fetch(url, opts);
+    console.log("Response status:", res.status); // log status code
+    if(!res.ok) {
+      const text = await res.text().catch(()=>"");
+      console.error("Fetch failed:", text);
+      throw new Error(`HTTP ${res.status} ${res.statusText} - ${text}`);
+    }
+    const data = await res.json();
+    console.log("Data received:", data); // log data
+    return data;
+  } catch(err) {
+    console.error("Fetch error:", err);
+    throw err;
+  }
+}
+
+
+  // --- Load Modules
+  async function loadModules(){
+    try {
+      const modules = await safeFetchJson(`${baseURL}/modules`);
+      cachedModules = modules;
+      renderDropdown(cachedModules, moduleSelect);
+    } catch(e){
+      console.error("Failed to load modules:", e);
+      moduleSelect.innerHTML = "<option disabled>Failed to load modules</option>";
+      alert("Failed to load modules. Check backend or network (see console).");
+    }
+  }
+
+  // --- Load models for a module
+  async function loadModels(module){
+    modelSelect.innerHTML = "<option disabled>Loading...</option>";
+    try {
+      if(cachedModels[module]){
+        renderDropdown(cachedModels[module], modelSelect);
+      } else {
+        const data = await safeFetchJson(`${baseURL}/models/${encodeURIComponent(module)}`);
+        const models = data.map(m => m.model_name);
+        cachedModels[module] = models;
+        renderDropdown(models, modelSelect);
+      }
+      modelSearch.disabled = false;
+      variantSelect.disabled = true;
+      variantSelect.innerHTML = "";
+    } catch(e){
+      console.error("Failed to load models:", e);
+      modelSelect.innerHTML = "<option disabled>Failed to load models</option>";
+      alert("Failed to load models. Check backend (console).");
+    }
+  }
+
+  // --- Load variants for a model
+  async function loadVariants(model){
+    variantSelect.innerHTML = "<option disabled>Loading...</option>";
+    try {
+      if(cachedVariants[model]){
+        renderDropdown(cachedVariants[model].map(v=>v.variant_name), variantSelect);
+      } else {
+        const data = await safeFetchJson(`${baseURL}/variants/${encodeURIComponent(model)}`);
+        cachedVariants[model] = data;
+        renderDropdown(data.map(v=>v.variant_name), variantSelect);
+      }
+      variantSearch.disabled = false;
+    } catch(e){
+      console.error("Failed to load variants:", e);
+      variantSelect.innerHTML = "<option disabled>Failed to load variants</option>";
+      alert("Failed to load variants. Check backend (console).");
+    }
+  }
+
+  // --- Event wiring
+  moduleSearch?.addEventListener("input", debounce(()=> {
+    const q = moduleSearch.value.trim().toLowerCase();
+    const filtered = cachedModules.filter(m => m.toLowerCase().includes(q));
     renderDropdown(filtered, moduleSelect);
   }));
 
-  modelSearch?.addEventListener("input", debounce(()=>{
+  modelSearch?.addEventListener("input", debounce(()=> {
     const models = cachedModels[moduleSelect.value] || [];
-    renderDropdown(models.filter(m=>m.toLowerCase().includes(modelSearch.value.toLowerCase())), modelSelect);
+    const q = modelSearch.value.trim().toLowerCase();
+    renderDropdown(models.filter(m => m.toLowerCase().includes(q)), modelSelect);
   }));
 
-  variantSearch?.addEventListener("input", debounce(()=>{
+  variantSearch?.addEventListener("input", debounce(()=> {
     const variants = cachedVariants[modelSelect.value] || [];
-    renderDropdown(
-      variants.filter(v=>v.variant_name.toLowerCase().includes(variantSearch.value.toLowerCase())).map(v=>v.variant_name),
-      variantSelect
-    );
+    const q = variantSearch.value.trim().toLowerCase();
+    renderDropdown(variants.filter(v => v.variant_name.toLowerCase().includes(q)).map(v => v.variant_name), variantSelect);
   }));
 
-  // ====== SELECTION HANDLERS ======
   moduleSelect?.addEventListener("change", async ()=>{
-    const module = moduleSelect.value;
-    if(module){
-      await loadModels(module);
-      modelSelect.disabled=false;
-      variantSelect.disabled=true;
-      variantSelect.innerHTML="";
-      modelSearch.value="";
-      variantSearch.value="";
-    }
+    const m = moduleSelect.value;
+    modelSearch.value = "";
+    variantSearch.value = "";
+    if(m) await loadModels(m);
   });
 
   modelSelect?.addEventListener("change", async ()=>{
-    const model = modelSelect.value;
-    if(model){
-      await loadVariants(model);
-      variantSelect.disabled=false;
-      variantSearch.value="";
-    }
+    const mm = modelSelect.value;
+    variantSearch.value = "";
+    if(mm) await loadVariants(mm);
   });
 
   variantSelect?.addEventListener("change", ()=>{
     const vname = variantSelect.value;
-    if(!selectedVariants[vname]){
-      const vobj = cachedVariants[modelSelect.value].find(v=>v.variant_name===vname);
-      if(vobj){
-        selectedVariants[vname] = vobj;
-        renderChips();
-      }
-    }
+    if(!vname || selectedVariants[vname]) return;
+    // find full object if available
+    const vobj = (cachedVariants[modelSelect.value] || []).find(v => v.variant_name === vname) || { variant_name: vname };
+    selectedVariants[vname] = vobj;
+    renderChips();
   });
 
-  // ====== CHIPS ======
   function renderChips(){
-    selectedChips.innerHTML="";
-    Object.values(selectedVariants).forEach(v=>{
+    selectedChips.innerHTML = "";
+    Object.values(selectedVariants).forEach(v => {
       const chip = document.createElement("div");
-      chip.className="chip";
-      chip.innerHTML = `${v.module_name} > ${v.model_name} > ${v.variant_name} (${v.MTE}) <span class="remove">&times;</span>`;
-      chip.querySelector(".remove")?.addEventListener("click", ()=>{
-        delete selectedVariants[v.variant_name];
+      chip.className = "chip";
+      chip.innerHTML = `${v.module_name || ""} ${v.model_name ? "> "+v.model_name : ""} > ${v.variant_name || v} <span class="remove">&times;</span>`;
+      chip.querySelector(".remove").addEventListener("click", ()=>{
+        delete selectedVariants[v.variant_name || v];
         renderChips();
       });
       selectedChips.appendChild(chip);
     });
   }
 
-  // ====== CLEAR ALL ======
   clearAllBtn?.addEventListener("click", ()=>{
-    selectedVariants={};
+    selectedVariants = {};
     renderChips();
-    totalMte.textContent="0";
-    moduleSearch.value="";
-    modelSearch.value="";
-    variantSearch.value="";
-    renderDropdown(cachedModules, moduleSelect);
-    modelSelect.innerHTML="";
-    variantSelect.innerHTML="";
-    modelSelect.disabled = true;
-    variantSelect.disabled = true;
+    totalMte.textContent = "0";
   });
 
-  // ====== CALCULATE MTE ======
   calculateBtn?.addEventListener("click", async ()=>{
     const names = Object.keys(selectedVariants);
     if(!names.length) return alert("Select variants first!");
-    loadingOverlay.style.display="flex";
+    loadingOverlay.style.display = "flex";
     try {
-      const res = await fetch(`${baseURL}/calculate_mte`, {
-        method:"POST",
+      const res = await safeFetchJson(`${baseURL}/calculate_mte`, {
+        method: "POST",
         headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({variants:names})
+        body: JSON.stringify({variants: names})
       });
-      const data = await res.json();
-      totalMte.textContent = data.overall_mte.toFixed(2);
-    } catch(e){ alert("Calculation failed"); }
-    loadingOverlay.style.display="none";
+      totalMte.textContent = (res.overall_mte || 0).toFixed(2);
+    } catch(e){
+      console.error("Calculation failed:", e);
+      alert("Failed to calculate MTE. See console for details.");
+    } finally {
+      loadingOverlay.style.display = "none";
+    }
   });
 
-  // ====== SERVICE WORKER ======
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(reg => console.log('Service Worker registered:', reg))
-        .catch(err => console.log('SW registration failed:', err));
-    });
-  }
-
-  // ====== INIT ======
+  // initial
   loadModules();
 
 });
-
-
-
-
-
 
