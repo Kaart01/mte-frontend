@@ -1,63 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MTE Calculator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTE Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app-container">
-    <h1>MTE CALCULATOR</h1>
+<div class="container">
+  <h1>MTE Calculator</h1>
 
-    <!-- Module -->
-    <div class="card">
-      <label class="floating-label">Module</label>
-      <input type="text" id="moduleSearch" placeholder="Search Module...">
-      <select id="moduleSelect" size="5"></select>
-    </div>
-
-    <!-- Model -->
-    <div class="card">
-      <label class="floating-label">Model</label>
-      <input type="text" id="modelSearch" placeholder="Search Model..." disabled>
-      <select id="modelSelect" size="5" disabled></select>
-    </div>
-
-    <!-- Variant -->
-    <div class="card">
-      <label class="floating-label">Variant</label>
-      <input type="text" id="variantSearch" placeholder="Search Variant..." disabled>
-      <select id="variantSelect" size="5" disabled></select>
-    </div>
-
-    <!-- Selected Variants -->
-    <div class="card">
-      <label>Selected Variants</label>
-      <div id="selectedChips" class="chips-container"></div>
-      <button id="clearAllBtn" class="small-btn">Clear All</button>
-    </div>
-
-    <!-- Calculate -->
-    <div class="card calculate-card">
-      <button id="calculateBtn">Calculate MTE</button>
-      <p><strong>Total MTE:</strong> <span id="totalMte">0</span></p>
-    </div>
+  <!-- MODULE -->
+  <div class="dropdown-wrapper">
+    <input type="text" id="moduleInput" placeholder="Search Module" class="dropdown" autocomplete="off">
+    <div class="list" id="moduleList"></div>
   </div>
 
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay" class="loading-overlay">
-    <div class="loading-box">
-      <div class="spinner"></div>
-      <p>Calculating...</p>
-    </div>
+  <!-- MODEL -->
+  <div class="dropdown-wrapper">
+    <input type="text" id="modelInput" placeholder="Search Model" class="dropdown" disabled autocomplete="off">
+    <div class="list" id="modelList"></div>
   </div>
 
-  <script src="script_v2.js"></script>
+  <!-- VARIANT -->
+  <div class="dropdown-wrapper">
+    <input type="text" id="variantInput" placeholder="Search Variant" class="dropdown" disabled autocomplete="off">
+    <div class="list" id="variantList"></div>
+  </div>
+
+  <!-- SELECTED VARIANTS -->
+  <div class="chips-container" id="chips"></div>
+
+  <!-- BUTTONS -->
+  <button id="calculateBtn">Calculate MTE</button>
+  <div class="loading" id="loading" style="display:none;"><div class="spinner"></div>Calculating...</div>
+  <button id="clearBtn">Clear All</button>
+
+  <!-- MTE RESULT -->
+  <div class="mte-display" id="mteDisplay">Overall MTE: 0</div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

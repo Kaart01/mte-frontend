@@ -1,151 +1,83 @@
-/* General */
 body {
-  font-family: 'Roboto', sans-serif;
-  background: #f0f2f5;
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-  transition: background 0.3s ease;
+  margin:0; padding:0;
+  font-family:'Roboto', Arial, sans-serif;
+  background:#e0e0e0;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  min-height:100vh;
 }
+.container {
+  width:390px; min-height:844px; 
+  margin-top:20px; padding:16px;
+  background:#fff; border-radius:28px;
+  box-shadow:0 6px 24px rgba(0,0,0,0.2);
+  position:relative; overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+}
+h1 { text-align:center; color:#007bff; margin-bottom:16px; }
 
-.app-container {
-  width: 100%;
-  max-width: 480px;
+/* INPUTS */
+.dropdown-wrapper { position:relative; margin:10px 0; }
+.dropdown {
+  width:100%; padding:8px 5px;
+  border-radius:12px; border:1px solid #007bff;
+  font-size:1rem; color:#007bff; font-weight:bold;
+  text-align:center;
 }
+.dropdown:disabled { background:#f5f5f5; color:#999; }
 
-h1 {
-  text-align: center;
-  color: #1976D2;
-  margin-bottom: 24px;
-  font-weight: 700;
-  animation: slideDown 0.5s ease;
+/* DROPDOWN LIST */
+.list {
+  position:absolute; top:100%; left:0; width:100%;
+  max-height:140px; overflow-y:auto;
+  background:#fff; border:1px solid #007bff;
+  border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  display:none; z-index:1000;
 }
+.list div { padding:6px 10px; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.list div:hover { background:#007bff; color:#fff; }
+.list div:active { background: rgba(0,123,255,0.3); }
 
-/* Card */
-.card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-  padding: 16px;
-  margin-bottom: 18px;
-  position: relative;
-  transition: all 0.3s ease;
-}
-.card:hover {
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  transform: translateY(-2px);
-}
+/* CHIPS */
+.chips-container { display:flex; flex-wrap:wrap; gap:10px; margin:12px 0; }
+.chip { background:#007bff; color:#fff; padding:6px 12px; border-radius:20px; display:flex; align-items:center; font-size:0.9rem; touch-action: pan-x; }
+.chip span { margin-left:8px; cursor:pointer; font-weight:bold; }
 
-/* Floating Labels */
-.floating-label {
-  position: absolute;
-  font-size: 13px;
-  color: #1976D2;
-  margin-top: -10px;
-  margin-left: 10px;
-  background: #fff;
-  padding: 0 4px;
-  transition: all 0.2s ease;
-}
-
-input[type="text"], select {
-  width: 100%;
-  padding: 6px 6px;
-  border-radius: 12px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  margin-top: 10px;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus, select:focus {
-  outline: none;
-  border-color: #1976D2;
-  box-shadow: 0 0 0 2px rgba(25,118,210,0.2);
-  transform: scale(1.02);
-}
-
-/* Chips */
-.chips-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
-}
-.chip {
-  background: #1976D2;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  animation: fadeIn 0.3s ease;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-.chip:hover {
-  transform: scale(1.05);
-  background: #1565C0;
-}
-.chip .remove {
-  cursor: pointer;
-  font-weight: bold;
-}
-
-/* Buttons */
+/* BUTTONS */
 button {
-  background: #1976D2;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 12px;
-  cursor: pointer;
-  width: 100%;
-  font-weight: 600;
-  font-size: 14px;
-  transition: all 0.3s ease;
+  width:100%; padding:12px; margin:8px 0;
+  background:#007bff; color:#fff; border:none; border-radius:12px; font-weight:bold;
+  font-size:1rem; cursor:pointer;
 }
-button:hover { background: #1565C0; }
-.small-btn { width: auto; padding: 6px 12px; font-size: 12px; margin-top: 6px; }
+button:hover { opacity:0.9; }
+button:active { background: rgba(0,123,255,0.3); }
 
-/* Calculate card */
-.calculate-card { text-align: center; }
-
-/* Loading overlay */
-.loading-overlay {
-  display: none;
-  position: fixed;
-  top:0; left:0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.3);
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  animation: fadeIn 0.3s ease;
-}
-.loading-box {
-  background: #fff;
-  padding: 24px 36px;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+/* MTE DISPLAY */
+.mte-display { text-align:center; margin-top:12px; color:#007bff; font-weight:bold; font-size:1.1rem; }
+.loading { font-style:italic; color:#555; margin:10px 0; display:flex; align-items:center; justify-content:center; gap:6px; }
 .spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #1976D2;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 12px;
+  border:3px solid #f3f3f3;
+  border-top:3px solid #007bff;
+  border-radius:50%;
+  width:16px; height:16px;
+  animation: spin 0.8s linear infinite;
 }
+@keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
 
-/* Animations */
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-@keyframes fadeIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
-@keyframes slideDown { 0% { opacity:0; transform: translateY(-20px);} 100% { opacity:1; transform: translateY(0);} }
+/* SWIPE ANIMATION FOR CHIPS */
+@keyframes swipeOut { 0% {transform:translateX(0);} 100% {transform:translateX(120%); opacity:0;} }
+
+
+
+
+
+
+
+
+
+
+
 
 
